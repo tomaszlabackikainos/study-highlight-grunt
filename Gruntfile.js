@@ -8,12 +8,12 @@ module.exports = function(grunt) {
         localProjectWebappDir: '../src/main/webapp/',
         localTempDir: '../target/grunt-tmp',
         files: {
-            jsAppControllers: '<%= localProjectWebappDir %>/ui/**/*.js',
+            jsAppControllers: '<%= localProjectWebappDir %>/ui/controllers/*.js',
             jsAppLibraries: '<%= localProjectWebappDir %>/libraries/*.js',
             jsAppMain: '<%= localProjectWebappDir %>/ui/app.js',
             htmlAppViews: '<%= localProjectWebappDir %>/ui/views/*.html',
             htmlAppMain: '<%= localProjectWebappDir %>/ui/index.html',
-            scssAppMain: '<%= localProjectWebappDir %>/ui/study-highlights-ui.scss',
+            scssAppMain: '<%= localProjectWebappDir %>/ui/**/*.scss',
             cssAppMain: '<%= localTempDir %>/study-highlights-ui.css',
             war: "../target/study-highlights-ui-*-SNAPSHOT.war",
             warTomcat: "../target/study-highlights-ui.war",
@@ -43,7 +43,7 @@ module.exports = function(grunt) {
             },
             scssAppMain: {
                 files: ['<%= files.scssAppMain %>'],
-                tasks: ['sass:scssAppMain', 'sftp:scssAppMain']
+                tasks: ['sass:scssAppMain', 'sftp:cssAppMain']
             }
         },
         
@@ -72,38 +72,27 @@ module.exports = function(grunt) {
                     "./": "<%= files.jsAppControllers %>",
                 }
             },
-
             jsAppLibraries: {
                 files: {
                     "./": "<%= files.jsAppLibraries %>",
                 }
             },
-
             jsAppMain: {
                 files: {
                     "./": "<%= files.jsAppMain %>",
                 }
             },
-
             htmlAppViews: {
                 files: {
                     "./": "<%= files.htmlAppViews %>",
                 }
             },
-
             htmlAppMain: {
                 files: {
                     "./": "<%= files.htmlAppMain %>",
                 }
             },
-
             cssAppMain: {
-                files: {
-                    "./": "<%= files.htmlAppMain %>",
-                }
-            },
-
-            scssAppMain: {
                 files: {
                     "./": "<%= files.cssAppMain %>"
                 },
@@ -112,7 +101,6 @@ module.exports = function(grunt) {
                     srcBasePath: '../target/grunt-tmp/'
                 }
             },
-
             war: {
                 files: {
                     "./": "<%= files.warTomcat %>"
@@ -123,26 +111,14 @@ module.exports = function(grunt) {
                     showProgress: true
                 }
             },
-
             options: {
                 path: '<%= remoteTomcatWebappDir %>',
                 srcBasePath: '<%= localProjectWebappDir %>',
                 host: '<%= secret.host %>',
                 port: '<%= secret.port %>',
-                username: '<%= secret.root.username %>',
-                password: '<%= secret.root.password %>'
+                username: '<%= secret.tomcat.username %>',
+                password: '<%= secret.tomcat.password %>'
             },
-        },
-        
-        exec: {
-            createWarWithoutTests: {
-                cmd: "﻿mvn clean install -DskipTests -Dcobertura.skip -Dcheckstyle.skip﻿ -Dfindbugs.skip",
-                cwd: "../"
-            },
-            createWar: {
-                cmd: "﻿mvn clean install",
-                cwd: "../"
-            }
         },
 
         sshexec: {
@@ -178,7 +154,6 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.task.registerTask('installWar', ['exec:createWarWithoutTests', 'deployWar']);
     grunt.task.registerTask('deployWar', ['sshexec:removeWar', 'rename:war', 'sftp:war']);
     grunt.task.registerTask('default', ['watch']);
 
@@ -186,5 +161,4 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-rename');
     grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks('grunt-ssh');
-    grunt.loadNpmTasks('grunt-exec');
 };
